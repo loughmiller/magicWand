@@ -3,15 +3,34 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_TCS34725.h>
+#include <WIFI.h>
+#include <painlessMesh.h>
 
-// I2C SCANNER
-#define WIRE Wire
+////////////////////////////////////////////////////////////////////////////////
+// WIFI
+////////////////////////////////////////////////////////////////////////////////
+#define   MESH_PREFIX     "wizardMesh"
+#define   MESH_PASSWORD   "somethingSneaky"
+#define   MESH_PORT       5555
 
+Scheduler userScheduler; // to control your personal task
+painlessMesh  mesh;
+
+uint32_t newConnection = 0;
+uint32_t lightning = 0;
+void newConnectionCallback(uint32_t nodeId);
+void lightningAnimation();
+bool connected = false;
+
+
+////////////////////////////////////////////////////////////////////////////////
 // COLOR SENSOR
+////////////////////////////////////////////////////////////////////////////////
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 uint8_t readHue();
 uint8_t calcHue(float r, float g, float b);
 byte stolenHue;
+
 
 ///////////////////////////////////////////////////////////////////
 // SETUP
@@ -23,7 +42,9 @@ void setup() {
   delay(100);
   Serial.println("setup");
 
-  WIRE.begin();
+  // WIFI SETUP
+  mesh.setDebugMsgTypes( ERROR | STARTUP );  // set before init() so that you can see startup messages
+  mesh.init( MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT );
 
   // COLOR SENSOR SETUP
   if (tcs.begin()) {
@@ -44,48 +65,12 @@ void setup() {
 // --------------------------------------
 
 void loop() {
-  byte error, address;
-  int nDevices;
 
-  Serial.println("Scanning...");
+  mesh.update();
+  // stolenHue = readHue();
+  // Serial.print("Hue: ");
+  // Serial.println(stolenHue);
 
-  nDevices = 0;
-  for(address = 1; address < 127; address++ )
-  {
-    // The i2c_scanner uses the return value of
-    // the Write.endTransmisstion to see if
-    // a device did acknowledge to the address.
-    WIRE.beginTransmission(address);
-    error = WIRE.endTransmission();
-
-    if (error == 0)
-    {
-      Serial.print("I2C device found at address 0x");
-      if (address<16)
-        Serial.print("0");
-      Serial.print(address,HEX);
-      Serial.println("  !");
-
-      nDevices++;
-    }
-    else if (error==4)
-    {
-      Serial.print("Unknown error at address 0x");
-      if (address<16)
-        Serial.print("0");
-      Serial.println(address,HEX);
-    }
-  }
-  if (nDevices == 0)
-    Serial.println("No I2C devices found\n");
-  else
-    Serial.println("done\n");
-
-  stolenHue = readHue();
-  Serial.print("Hue: ");
-  Serial.println(stolenHue);
-
-  delay(5000);           // wait 5 seconds for next scan
 }
 
 ///////////////////////////////////////////////////////////////////
