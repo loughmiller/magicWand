@@ -5,6 +5,8 @@
 #include <Adafruit_TCS34725.h>
 #include <WIFI.h>
 #include <painlessMesh.h>
+#include "AiEsp32RotaryEncoder.h"
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // WIFI
@@ -32,6 +34,22 @@ uint8_t calcHue(float r, float g, float b);
 byte stolenHue;
 
 
+////////////////////////////////////////////////////////////////////////////////
+// ROTARY ENCODER
+////////////////////////////////////////////////////////////////////////////////
+#define ROTARY_ENCODER_A_PIN 4
+#define ROTARY_ENCODER_B_PIN 5
+#define ROTARY_ENCODER_BUTTON_PIN 3
+#define ROTARY_ENCODER_VCC_PIN -1
+#define ROTARY_ENCODER_STEPS 4
+
+//instead of changing here, rather change numbers above
+AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN, ROTARY_ENCODER_BUTTON_PIN, ROTARY_ENCODER_VCC_PIN, ROTARY_ENCODER_STEPS);
+
+void IRAM_ATTR readEncoderISR() {
+	rotaryEncoder.readEncoder_ISR();
+}
+
 ///////////////////////////////////////////////////////////////////
 // SETUP
 ///////////////////////////////////////////////////////////////////
@@ -51,26 +69,54 @@ void setup() {
     // turn off flash
     tcs.setInterrupt(true);
     Serial.println("Found color sensor");
+  } else {
+    Serial.println("Color sensor not found");
+  }
 
-  } //else {
-  //   Serial.println("Color sensor not found");
-  // }
+  // ROTARY ENCODER SETUP
+  Serial.println("init rotary encoder");
+  pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT);
+  rotaryEncoder.begin();
+  rotaryEncoder.setup(readEncoderISR);
+  // rotaryEncoder.readEncoder_ISR();
+  bool circleValues = true;
+  rotaryEncoder.setBoundaries(0, 255, circleValues);
+  rotaryEncoder.setAcceleration(25);
+
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
+  Serial.println("setup done");
 }
 
-
-// --------------------------------------
-// i2c_scanner
-//
-// Modified from https://playground.arduino.cc/Main/I2cScanner/
-// --------------------------------------
-
+///////////////////////////////////////////////////////////////////
+// LOOP
+///////////////////////////////////////////////////////////////////
 void loop() {
 
   mesh.update();
-  // stolenHue = readHue();
-  // Serial.print("Hue: ");
-  // Serial.println(stolenHue);
 
+  // Serial.println(rotaryEncoder.readEncoder());
+
+  if (rotaryEncoder.encoderChanged()) {
+    uint_fast8_t location = rotaryEncoder.readEncoder();
+    Serial.print("Value: ");
+    Serial.println(location);
+
+    stolenHue = readHue();
+    Serial.print("Hue: ");
+    Serial.println(stolenHue);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////
