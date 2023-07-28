@@ -43,8 +43,9 @@ byte stolenHue;
 #define ROTARY_ENCODER_A_PIN 4
 #define ROTARY_ENCODER_B_PIN 5
 #define ROTARY_ENCODER_BUTTON_PIN 3
-#define ROTARY_ENCODER_VCC_PIN -1
+#define ROTARY_ENCODER_VCC_PIN 2
 #define ROTARY_ENCODER_STEPS 4
+#define ROTARY_ENCODER_NEG 1
 
 //instead of changing here, rather change numbers above
 AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN, ROTARY_ENCODER_BUTTON_PIN, ROTARY_ENCODER_VCC_PIN, ROTARY_ENCODER_STEPS);
@@ -84,7 +85,10 @@ void setup() {
 
   // ROTARY ENCODER SETUP
   Serial.println("init rotary encoder");
+  pinMode(ROTARY_ENCODER_NEG, OUTPUT);
+  digitalWrite(ROTARY_ENCODER_NEG, LOW);
   pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT);
+  delay(100);
   rotaryEncoder.begin();
   rotaryEncoder.setup(readEncoderISR);
   // rotaryEncoder.readEncoder_ISR();
@@ -92,9 +96,9 @@ void setup() {
   rotaryEncoder.setBoundaries(0, 255, circleValues);
   rotaryEncoder.setAcceleration(25);
 
-  Serial.println("setup done");
-  Serial.println("setup done");
-  Serial.println("setup done");
+  // Serial.println("setup done");
+  // Serial.println("setup done");
+  // Serial.println("setup done");
 }
 
 ///////////////////////////////////////////////////////////////////
