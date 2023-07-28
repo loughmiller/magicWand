@@ -32,6 +32,9 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
 uint8_t readHue();
 uint8_t calcHue(float r, float g, float b);
 byte stolenHue;
+#define COLOR_SENSOR_POS 7
+#define COLOR_SENSOR_NEG 34
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +68,12 @@ void setup() {
   mesh.init( MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT );
 
   // COLOR SENSOR SETUP
+  pinMode(COLOR_SENSOR_POS, OUTPUT);
+  pinMode(COLOR_SENSOR_NEG, OUTPUT);
+  digitalWrite(COLOR_SENSOR_POS, HIGH);
+  digitalWrite(COLOR_SENSOR_NEG, LOW);
+  delay(100);
+
   if (tcs.begin()) {
     // turn off flash
     tcs.setInterrupt(true);
@@ -83,17 +92,6 @@ void setup() {
   rotaryEncoder.setBoundaries(0, 255, circleValues);
   rotaryEncoder.setAcceleration(25);
 
-  Serial.println("setup done");
-  Serial.println("setup done");
-  Serial.println("setup done");
-  Serial.println("setup done");
-  Serial.println("setup done");
-  Serial.println("setup done");
-  Serial.println("setup done");
-  Serial.println("setup done");
-  Serial.println("setup done");
-  Serial.println("setup done");
-  Serial.println("setup done");
   Serial.println("setup done");
   Serial.println("setup done");
   Serial.println("setup done");
